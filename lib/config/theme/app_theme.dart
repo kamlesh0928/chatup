@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 class AppTheme {
   // Define the primary brand and accent color
-  static const primaryColor = Color(0xFF4CAF50);
+  static const primaryColor = Color(0xFF272626);
   static const appBackground = Color(0xFFF0F2F5); // Overall Scaffold background
   static const cardSurfaceColor = Colors.white; // For AppBar, cards, list items
   static const primaryTextColor = Color(0xFF1E272E); // Dark Grey for main text
