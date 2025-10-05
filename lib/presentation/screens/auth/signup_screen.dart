@@ -3,16 +3,19 @@ import 'package:chatup/core/common/custom_button.dart';
 import 'package:chatup/core/common/custom_text_field.dart';
 import '../../../core/routes/app_routes.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+class SignupScreen extends StatefulWidget {
+  const SignupScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<SignupScreen> createState() => _SignupScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen>
+class _SignupScreenState extends State<SignupScreen>
     with SingleTickerProviderStateMixin {
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController usernameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
+  final TextEditingController phoneController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   late AnimationController _controller;
   late Animation<double> _fadeAnimation;
@@ -38,7 +41,10 @@ class _LoginScreenState extends State<LoginScreen>
   @override
   void dispose() {
     _controller.dispose();
+    nameController.dispose();
+    usernameController.dispose();
     emailController.dispose();
+    phoneController.dispose();
     passwordController.dispose();
     super.dispose();
   }
@@ -84,22 +90,50 @@ class _LoginScreenState extends State<LoginScreen>
                           children: [
                             const SizedBox(height: 25),
                             Text(
-                              "Welcome Back",
+                              "Create Account",
                               style: Theme.of(context).textTheme.titleLarge,
                               textAlign: TextAlign.center,
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              "Sign in to connect and chat!",
+                              "Please fill in the details to continue",
                               style: Theme.of(context).textTheme.bodyLarge,
                               textAlign: TextAlign.center,
                             ),
                             const SizedBox(height: 30),
                             CustomTextField(
+                              controller: nameController,
+                              hintText: "Full Name",
+                              prefixIcon: Icon(
+                                Icons.person_outline,
+                                color: Color(0xFF3B9FA7),
+                              ),
+                            ),
+                            const SizedBox(height: 20),
+                            CustomTextField(
+                              controller: usernameController,
+                              hintText: "username",
+                              prefixIcon: Icon(
+                                Icons.alternate_email_rounded,
+                                color: Color(0xFF3B9FA7),
+                              ),
+                            ),
+                            const SizedBox(height: 20),
+                            CustomTextField(
                               controller: emailController,
                               hintText: "Email",
                               prefixIcon: Icon(
                                 Icons.email_outlined,
+                                color: Color(0xFF3B9FA7),
+                              ),
+                            ),
+                            const SizedBox(height: 20),
+                            CustomTextField(
+                              controller: phoneController,
+                              hintText: "Phone Number",
+                              keyboardType: TextInputType.phone,
+                              prefixIcon: Icon(
+                                Icons.phone_outlined,
                                 color: Color(0xFF3B9FA7),
                               ),
                             ),
@@ -117,37 +151,25 @@ class _LoginScreenState extends State<LoginScreen>
                               ),
                               obscureText: true,
                             ),
-                            const SizedBox(height: 10),
-                            Align(
-                              alignment: Alignment.centerRight,
-                              child: TextButton(
-                                onPressed: () {},
-                                child: Text(
-                                  "Forgot Password?",
-                                  style: Theme.of(context).textTheme.bodyMedium
-                                      ?.copyWith(color: Color(0xFF3B9FA7)),
-                                ),
-                              ),
-                            ),
                             const SizedBox(height: 25),
-                            CustomButton(onPressed: () {}, text: "Login"),
+                            CustomButton(onPressed: () {}, text: "Create Account"),
                             const SizedBox(height: 20),
                             GestureDetector(
                               onTap: () {
-                                Navigator.pushNamed(context, AppRoutes.signup);
+                                Navigator.pushNamed(context, AppRoutes.login);
                               },
                               child: RichText(
                                 text: TextSpan(
                                   children: <TextSpan>[
                                     TextSpan(
-                                      text: "Don't have an account? ",
+                                      text: "Already have an account? ",
                                       style: TextStyle(
                                         color: Colors.grey[600],
                                         fontSize: 16,
                                       ),
                                     ),
                                     TextSpan(
-                                      text: "Signup",
+                                      text: "Login",
                                       style: TextStyle(
                                         color: Color(0xFF3B9FA7),
                                         fontWeight: FontWeight.bold,
