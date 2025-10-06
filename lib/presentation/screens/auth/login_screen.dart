@@ -12,11 +12,16 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen>
     with SingleTickerProviderStateMixin {
+  final _formKey = GlobalKey<FormState>();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   late AnimationController _controller;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
+
+  final _emailFocusNode = FocusNode();
+  final _passwordFocusNode = FocusNode();
+  bool _isPasswordVisible = true;
 
   @override
   void initState() {
@@ -40,7 +45,34 @@ class _LoginScreenState extends State<LoginScreen>
     _controller.dispose();
     emailController.dispose();
     passwordController.dispose();
+    _emailFocusNode.dispose();
+    _passwordFocusNode.dispose();
     super.dispose();
+  }
+
+  String? _validateEmail(String? value) {
+    if ((value == null) || (value.isEmpty)) {
+      return "Please enter your email";
+    }
+
+    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+    if (!emailRegex.hasMatch(value)) {
+      return "Please enter a valid email";
+    }
+
+    return null;
+  }
+
+  String? _validatePassword(String? value) {
+    if ((value == null) || (value.isEmpty)) {
+      return "Please enter a password";
+    }
+
+    if (value.length < 6) {
+      return "Password must be at least 6 characters";
+    }
+
+    return null;
   }
 
   @override
@@ -78,6 +110,7 @@ class _LoginScreenState extends State<LoginScreen>
                         ],
                       ),
                       child: Form(
+                        key: _formKey,
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           crossAxisAlignment: CrossAxisAlignment.center,
@@ -97,6 +130,8 @@ class _LoginScreenState extends State<LoginScreen>
                             const SizedBox(height: 30),
                             CustomTextField(
                               controller: emailController,
+                              focusNode: _emailFocusNode,
+                              validator: _validateEmail,
                               hintText: "Email",
                               prefixIcon: Icon(
                                 Icons.email_outlined,
@@ -106,16 +141,24 @@ class _LoginScreenState extends State<LoginScreen>
                             const SizedBox(height: 20),
                             CustomTextField(
                               controller: passwordController,
+                              focusNode: _passwordFocusNode,
+                              validator: _validatePassword,
                               hintText: "Password",
+                              obscureText: _isPasswordVisible,
                               prefixIcon: Icon(
                                 Icons.lock_outline,
                                 color: Color(0xFF3B9FA7),
                               ),
-                              suffixIcon: Icon(
-                                Icons.visibility,
-                                color: Color(0xFF3B9FA7),
+                              suffixIcon: IconButton(
+                                onPressed: () {
+                                  setState(() {
+                                    _isPasswordVisible = !_isPasswordVisible;
+                                  });
+                                },
+                                icon: _isPasswordVisible
+                                    ? Icon(Icons.visibility)
+                                    : Icon(Icons.visibility_off),
                               ),
-                              obscureText: true,
                             ),
                             const SizedBox(height: 10),
                             Align(
@@ -130,7 +173,15 @@ class _LoginScreenState extends State<LoginScreen>
                               ),
                             ),
                             const SizedBox(height: 25),
-                            CustomButton(onPressed: () {}, text: "Login"),
+                            CustomButton(
+                              onPressed: () {
+                                FocusScope.of(context).unfocus();
+
+                                if (_formKey.currentState?.validate() ??
+                                    false) {}
+                              },
+                              text: "Login",
+                            ),
                             const SizedBox(height: 20),
                             GestureDetector(
                               onTap: () {

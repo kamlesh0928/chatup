@@ -12,6 +12,7 @@ class SignupScreen extends StatefulWidget {
 
 class _SignupScreenState extends State<SignupScreen>
     with SingleTickerProviderStateMixin {
+  final _formKey = GlobalKey<FormState>();
   final TextEditingController nameController = TextEditingController();
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
@@ -20,6 +21,15 @@ class _SignupScreenState extends State<SignupScreen>
   late AnimationController _controller;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
+
+  final bool isPasswordVisible = false;
+
+  final _nameFocusNode = FocusNode();
+  final _usernameFocusNode = FocusNode();
+  final _emailFocusNode = FocusNode();
+  final _phoneFocusNode = FocusNode();
+  final _passwordFocusNode = FocusNode();
+  bool _isPasswordVisible = true;
 
   @override
   void initState() {
@@ -46,7 +56,66 @@ class _SignupScreenState extends State<SignupScreen>
     emailController.dispose();
     phoneController.dispose();
     passwordController.dispose();
+    _nameFocusNode.dispose();
+    _usernameFocusNode.dispose();
+    _emailFocusNode.dispose();
+    _phoneFocusNode.dispose();
+    _passwordFocusNode.dispose();
     super.dispose();
+  }
+
+  String? _validateName(String? value) {
+    if ((value == null) || (value.isEmpty)) {
+      return "Please enter your name";
+    }
+
+    return null;
+  }
+
+  String? _validateUsername(String? value) {
+    if ((value == null) || (value.isEmpty)) {
+      return "Please enter a username";
+    }
+
+    return null;
+  }
+
+  String? _validateEmail(String? value) {
+    if ((value == null) || (value.isEmpty)) {
+      return "Please enter your email";
+    }
+
+    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+    if (!emailRegex.hasMatch(value)) {
+      return "Please enter a valid email";
+    }
+
+    return null;
+  }
+
+  String? _validatePhone(String? value) {
+    if ((value == null) || (value.isEmpty)) {
+      return "Please enter your phone number";
+    }
+
+    final phoneRegex = RegExp(r'^\+?[\d\s-]{10,}$');
+    if (!phoneRegex.hasMatch(value)) {
+      return "Please enter a valid number";
+    }
+
+    return null;
+  }
+
+  String? _validatePassword(String? value) {
+    if ((value == null) || (value.isEmpty)) {
+      return "Please enter a password";
+    }
+
+    if (value.length < 6) {
+      return "Password must be at least 6 characters";
+    }
+
+    return null;
   }
 
   @override
@@ -84,6 +153,7 @@ class _SignupScreenState extends State<SignupScreen>
                         ],
                       ),
                       child: Form(
+                        key: _formKey,
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           crossAxisAlignment: CrossAxisAlignment.center,
@@ -103,6 +173,8 @@ class _SignupScreenState extends State<SignupScreen>
                             const SizedBox(height: 30),
                             CustomTextField(
                               controller: nameController,
+                              focusNode: _nameFocusNode,
+                              validator: _validateName,
                               hintText: "Full Name",
                               prefixIcon: Icon(
                                 Icons.person_outline,
@@ -112,6 +184,8 @@ class _SignupScreenState extends State<SignupScreen>
                             const SizedBox(height: 20),
                             CustomTextField(
                               controller: usernameController,
+                              focusNode: _usernameFocusNode,
+                              validator: _validateUsername,
                               hintText: "username",
                               prefixIcon: Icon(
                                 Icons.alternate_email_rounded,
@@ -121,6 +195,8 @@ class _SignupScreenState extends State<SignupScreen>
                             const SizedBox(height: 20),
                             CustomTextField(
                               controller: emailController,
+                              focusNode: _emailFocusNode,
+                              validator: _validateEmail,
                               hintText: "Email",
                               prefixIcon: Icon(
                                 Icons.email_outlined,
@@ -130,6 +206,8 @@ class _SignupScreenState extends State<SignupScreen>
                             const SizedBox(height: 20),
                             CustomTextField(
                               controller: phoneController,
+                              focusNode: _phoneFocusNode,
+                              validator: _validatePhone,
                               hintText: "Phone Number",
                               keyboardType: TextInputType.phone,
                               prefixIcon: Icon(
@@ -140,19 +218,35 @@ class _SignupScreenState extends State<SignupScreen>
                             const SizedBox(height: 20),
                             CustomTextField(
                               controller: passwordController,
+                              focusNode: _passwordFocusNode,
+                              validator: _validatePassword,
                               hintText: "Password",
+                              obscureText: _isPasswordVisible,
                               prefixIcon: Icon(
                                 Icons.lock_outline,
                                 color: Color(0xFF3B9FA7),
                               ),
-                              suffixIcon: Icon(
-                                Icons.visibility,
-                                color: Color(0xFF3B9FA7),
+                              suffixIcon: IconButton(
+                                onPressed: () {
+                                  setState(() {
+                                    _isPasswordVisible = !_isPasswordVisible;
+                                  });
+                                },
+                                icon: _isPasswordVisible
+                                    ? Icon(Icons.visibility)
+                                    : Icon(Icons.visibility_off),
                               ),
-                              obscureText: true,
                             ),
                             const SizedBox(height: 25),
-                            CustomButton(onPressed: () {}, text: "Create Account"),
+                            CustomButton(
+                              onPressed: () {
+                                FocusScope.of(context).unfocus();
+
+                                if (_formKey.currentState?.validate() ??
+                                    false) {}
+                              },
+                              text: "Create Account",
+                            ),
                             const SizedBox(height: 20),
                             GestureDetector(
                               onTap: () {
