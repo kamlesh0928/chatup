@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
+import '../../../data/services/service_locator.dart';
 import '../../../data/services/storage_service.dart';
-import '../../../core/routes/app_routes.dart';
+import '../../../router/app_router.dart';
+import '../auth/login_screen.dart';
 
 class SplashController {
   final StorageService _storageService = StorageService();
 
   Future<void> handleFirstLaunch(BuildContext context) async {
     await _storageService.setFirstLaunchFalse();
-    Navigator.pushReplacementNamed(context, AppRoutes.login);
+    getIt<AppRouter>().pushReplacement(const LoginScreen());
   }
 
   Future<bool> checkFirstLaunch() async {

@@ -1,7 +1,9 @@
+import 'package:chatup/data/services/service_locator.dart';
+import 'package:chatup/presentation/screens/auth/login_screen.dart';
+import 'package:chatup/router/app_router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'splash_controller.dart';
-import '../../../core/routes/app_routes.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -41,7 +43,7 @@ class _SplashScreenState extends State<SplashScreen>
     final isFirstLaunch = await _controller.checkFirstLaunch();
 
     if (!isFirstLaunch) {
-      Navigator.pushReplacementNamed(context, AppRoutes.login);
+      getIt<AppRouter>().pushReplacement(const LoginScreen());
     }
   }
 
