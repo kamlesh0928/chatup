@@ -1,7 +1,6 @@
 import 'dart:developer';
 import 'package:chatup/data/models/user_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import '../services/base_repository.dart';
 
 class AuthRepository extends BaseRepository {

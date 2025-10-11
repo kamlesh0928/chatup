@@ -109,11 +109,6 @@ class _LoginScreenState extends State<LoginScreen>
       bloc: getIt<AuthCubit>(),
       listener: (context, state) {
         if (state.status == AuthStatus.authenticated) {
-          UIiUtils.showSnackBar(
-            context,
-            message: "Login successful!",
-            isError: false,
-          );
           getIt<AppRouter>().pushAndRemoveUntil(const HomeScreen());
         } else if (state.status == AuthStatus.error && state.error != null) {
           setState(() {

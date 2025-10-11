@@ -26,7 +26,7 @@ class AppTheme {
       onTertiary: Colors.white,
       outline: Color(0xFFE0E0E0),
     ),
-    scaffoldBackgroundColor: Colors.transparent,
+    
     appBarTheme: const AppBarTheme(
       backgroundColor: cardSurfaceColor,
       elevation: 0,
@@ -39,6 +39,7 @@ class AppTheme {
       iconTheme: IconThemeData(color: primaryTextColor),
       actionsIconTheme: IconThemeData(color: primaryTextColor),
     ),
+
     textTheme: TextTheme(
       titleLarge: TextStyle(
         fontSize: 28,
@@ -49,15 +50,18 @@ class AppTheme {
       bodyMedium: TextStyle(fontSize: 14, color: Colors.grey[600]),
       labelMedium: TextStyle(fontSize: 12, color: Colors.grey),
     ),
+
     iconTheme: const IconThemeData(color: Colors.black87, size: 24),
+
     cardTheme: CardThemeData(
       color: primaryColor,
       elevation: 0,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
     ),
+
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
-      fillColor: primaryColor.withOpacity(0.1),
+      fillColor: primaryColor.withValues(alpha: 0.1),
       contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(25),
@@ -73,6 +77,7 @@ class AppTheme {
       ),
       hintStyle: TextStyle(color: Colors.grey[600]),
     ),
+
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         backgroundColor: primaryColor,
