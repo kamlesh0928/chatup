@@ -226,6 +226,68 @@ class ChatRepository extends BaseRepository {
     });
   }
 
+  Future<void> deleteMessageForMe(
+    String chatRoomId,
+    String messageId,
+    String currentUserId,
+  ) async {
+    await _chatRooms
+        .doc(chatRoomId)
+        .collection("messages")
+        .doc(messageId)
+        .update({
+          "isDeletedFor": FieldValue.arrayUnion([currentUserId]),
+        });
+  }
+
+  Future<void> clearChat(String currentUserId, String receiverId) async {
+    const batchLimit = 500;
+    final users = [currentUserId, receiverId]..sort();
+    final chatRoomId = users.join("_");
+    final collection = _chatRooms.doc(chatRoomId).collection("messages");
+
+    try {
+      while (true) {
+        final messages = await collection.limit(batchLimit).get();
+
+        if (messages.docs.isEmpty) {
+          break;
+        }
+
+        final batch = firestore.batch();
+        for (final doc in messages.docs) {
+          batch.delete(doc.reference);
+        }
+
+        await batch.commit();
+
+        await Future.delayed(const Duration(milliseconds: 100));
+      }
+
+    //   Update chat room to reset last message fields
+      await _chatRooms.doc(chatRoomId).update({
+        "lastMessage": null,
+        "lastMessageTime": null,
+        "lastMessageSenderId": null
+      });
+    } catch (e) {
+      log("Error clearing chat: $e");
+      rethrow;
+    }
+  }
+
+  Future<void> deleteFromEveryOne(String chatRoomId, String messageId) async {
+    return _chatRooms
+        .doc(chatRoomId)
+        .collection("messages")
+        .doc(messageId)
+        .update({
+          "content": "This messages was deleted",
+          "type": MessageType.deleted.toString(),
+          "timestamp": Timestamp.now(),
+        });
+  }
+
   Future<void> blockUser(String currentUserId, String blockUserId) async {
     final userRef = firestore.collection("users").doc(currentUserId);
     await userRef.update({

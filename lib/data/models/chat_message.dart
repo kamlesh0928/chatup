@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-enum MessageType { text, image, video }
+enum MessageType { text, image, video, deleted }
 
 enum MessageStatus { sent, read }
 

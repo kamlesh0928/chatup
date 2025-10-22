@@ -4,6 +4,7 @@ import 'package:chatup/data/services/service_locator.dart';
 import 'package:chatup/logic/cubits/chat/chat_cubit.dart';
 import 'package:chatup/logic/cubits/chat/chat_state.dart';
 import 'package:chatup/presentation/widgets/loading_dots.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -22,21 +23,37 @@ class ChatMessageScreen extends StatefulWidget {
   State<ChatMessageScreen> createState() => _ChatMessageScreenState();
 }
 
-class _ChatMessageScreenState extends State<ChatMessageScreen> {
+class _ChatMessageScreenState extends State<ChatMessageScreen>
+    with SingleTickerProviderStateMixin {
   final TextEditingController messageController = TextEditingController();
   late final ChatCubit _chatCubit;
   final _scrollController = ScrollController();
   List<ChatMessage> _previousMessages = [];
   bool _isTyping = false;
   bool _showEmoji = false;
+  String? _lastDate;
+  bool _showDate = false;
+  AnimationController? _animationController;
+  Animation<double>? _fadeAnimation;
 
   @override
   void initState() {
+    super.initState();
     _chatCubit = getIt<ChatCubit>();
     _chatCubit.enterChat(widget.receiverId);
     messageController.addListener(_onTextChange);
     _scrollController.addListener(_onScroll);
-    super.initState();
+
+    if (mounted) {
+      _animationController = AnimationController(
+        duration: const Duration(milliseconds: 600),
+        vsync: this,
+      );
+      _fadeAnimation = Tween<double>(begin: 0, end: 1).animate(
+        CurvedAnimation(parent: _animationController!, curve: Curves.easeInOut),
+      );
+      _animationController?.forward();
+    }
   }
 
   void _onScroll() {
@@ -93,11 +110,25 @@ class _ChatMessageScreenState extends State<ChatMessageScreen> {
     }
   }
 
+  String _getDateLabel(Timestamp messageTime) {
+    final now = DateTime.now();
+    final difference = now.difference(messageTime.toDate()).inDays;
+
+    if (difference == 0) {
+      return "Today";
+    } else if (difference == 1) {
+      return "Yesterday";
+    } else {
+      return DateFormat("dd MMM, yyyy").format(messageTime.toDate());
+    }
+  }
+
   @override
   void dispose() {
     messageController.dispose();
     _chatCubit.leaveChat();
     _scrollController.dispose();
+    _animationController?.dispose();
     super.dispose();
   }
 
@@ -116,9 +147,9 @@ class _ChatMessageScreenState extends State<ChatMessageScreen> {
           child: Column(
             children: [
               Container(
-                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                 decoration: BoxDecoration(
-                  color: Color.fromRGBO(255, 255, 255, 0.85),
+                  color: Color.fromRGBO(255, 255, 255, 0.95),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withValues(alpha: 0.1),
@@ -131,15 +162,23 @@ class _ChatMessageScreenState extends State<ChatMessageScreen> {
                   children: [
                     IconButton(
                       onPressed: () => Navigator.pop(context),
-                      icon: Icon(Icons.arrow_back, color: Color(0xFF3B9FA7)),
+                      icon: Icon(
+                        Icons.arrow_back,
+                        color: Color(0xFF3B9FA7),
+                        size: 28,
+                      ),
                     ),
                     CircleAvatar(
+                      radius: 20,
                       backgroundColor: Color(0xFF3B9FA7).withValues(alpha: 0.1),
                       child: Text(
-                        widget.receiverName[0],
+                        widget.receiverName.isNotEmpty
+                            ? widget.receiverName[0].toUpperCase()
+                            : "?",
                         style: TextStyle(
                           color: Color(0xFF3B9FA7),
                           fontWeight: FontWeight.bold,
+                          fontSize: 18,
                         ),
                       ),
                     ),
@@ -153,7 +192,7 @@ class _ChatMessageScreenState extends State<ChatMessageScreen> {
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w600,
-                              color: Color(0xFF3B9FA7),
+                              color: Colors.black87,
                             ),
                           ),
                           BlocBuilder<ChatCubit, ChatState>(
@@ -179,8 +218,9 @@ class _ChatMessageScreenState extends State<ChatMessageScreen> {
                                 return Text(
                                   "Online",
                                   style: TextStyle(
-                                    color: Colors.green,
+                                    color: Color(0xFF3B9FA7),
                                     fontSize: 12,
+                                    fontWeight: FontWeight.w500,
                                   ),
                                 );
                               }
@@ -212,14 +252,25 @@ class _ChatMessageScreenState extends State<ChatMessageScreen> {
                                 _chatCubit.unBlockUser(widget.receiverId),
                             label: Text(
                               "Unblock",
-                              style: TextStyle(color: Color(0xFF3B9FA7)),
+                              style: TextStyle(
+                                color: Color(0xFF3B9FA7),
+                                fontSize: 14,
+                              ),
                             ),
-                            icon: Icon(Icons.block, color: Color(0xFF3B9FA7)),
+                            icon: Icon(
+                              Icons.block,
+                              color: Color(0xFF3B9FA7),
+                              size: 20,
+                            ),
                           );
                         }
 
                         return PopupMenuButton<String>(
-                          icon: Icon(Icons.more_vert, color: Color(0xFF3B9FA7)),
+                          icon: Icon(
+                            Icons.more_vert,
+                            color: Color(0xFF3B9FA7),
+                            size: 28,
+                          ),
                           onSelected: (value) async {
                             if (value == "block") {
                               final bool? confirm = await showDialog<bool>(
@@ -229,14 +280,24 @@ class _ChatMessageScreenState extends State<ChatMessageScreen> {
                                     255,
                                     255,
                                     255,
-                                    0.85,
+                                    0.95,
                                   ),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(20),
                                   ),
                                   title: Text(
-                                    "Are you sure you want to block ${widget.receiverName}?",
-                                    style: TextStyle(color: Color(0xFF3B9FA7)),
+                                    "Block ${widget.receiverName}?",
+                                    style: TextStyle(
+                                      color: Color(0xFF3B9FA7),
+                                      fontSize: 18,
+                                    ),
+                                  ),
+                                  content: Text(
+                                    "Blocked contacts will not be able to message you.",
+                                    style: TextStyle(
+                                      color: Colors.grey[600],
+                                      fontSize: 14,
+                                    ),
                                   ),
                                   actions: [
                                     TextButton(
@@ -245,6 +306,7 @@ class _ChatMessageScreenState extends State<ChatMessageScreen> {
                                         "Cancel",
                                         style: TextStyle(
                                           color: Colors.grey[600],
+                                          fontSize: 14,
                                         ),
                                       ),
                                     ),
@@ -253,7 +315,10 @@ class _ChatMessageScreenState extends State<ChatMessageScreen> {
                                           Navigator.pop(context, true),
                                       child: Text(
                                         "Block",
-                                        style: TextStyle(color: Colors.red),
+                                        style: TextStyle(
+                                          color: Colors.red,
+                                          fontSize: 14,
+                                        ),
                                       ),
                                     ),
                                   ],
@@ -262,6 +327,61 @@ class _ChatMessageScreenState extends State<ChatMessageScreen> {
                               if (confirm == true) {
                                 await _chatCubit.blockUser(widget.receiverId);
                               }
+                            } else if (value == "clearChat") {
+                              final bool? confirm = await showDialog<bool>(
+                                context: context,
+                                builder: (context) => AlertDialog(
+                                  backgroundColor: Color.fromRGBO(
+                                    255,
+                                    255,
+                                    255,
+                                    0.95,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  title: Text(
+                                    "Clear Chat",
+                                    style: TextStyle(
+                                      color: Color(0xFF3B9FA7),
+                                      fontSize: 18,
+                                    ),
+                                  ),
+                                  content: Text(
+                                    "Are you sure you want to clear all messages in this chat?",
+                                    style: TextStyle(
+                                      color: Colors.grey[600],
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () => Navigator.pop(context),
+                                      child: Text(
+                                        "Cancel",
+                                        style: TextStyle(
+                                          color: Colors.grey[600],
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                    ),
+                                    TextButton(
+                                      onPressed: () =>
+                                          Navigator.pop(context, true),
+                                      child: Text(
+                                        "Clear",
+                                        style: TextStyle(
+                                          color: Colors.red,
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                              if (confirm == true) {
+                                await _chatCubit.clearChat(widget.receiverId);
+                              }
                             }
                           },
                           itemBuilder: (context) => <PopupMenuEntry<String>>[
@@ -269,7 +389,20 @@ class _ChatMessageScreenState extends State<ChatMessageScreen> {
                               value: "block",
                               child: Text(
                                 "Block",
-                                style: TextStyle(color: Color(0xFF3B9FA7)),
+                                style: TextStyle(
+                                  color: Color(0xFF3B9FA7),
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ),
+                            PopupMenuItem(
+                              value: "clearChat",
+                              child: Text(
+                                "Clear Chat",
+                                style: TextStyle(
+                                  color: Color(0xFF3B9FA7),
+                                  fontSize: 14,
+                                ),
                               ),
                             ),
                           ],
@@ -298,7 +431,10 @@ class _ChatMessageScreenState extends State<ChatMessageScreen> {
                       return Center(
                         child: Text(
                           state.error ?? "Something went wrong",
-                          style: TextStyle(color: Colors.grey[600]),
+                          style: TextStyle(
+                            color: Colors.grey[600],
+                            fontSize: 16,
+                          ),
                         ),
                       );
                     }
@@ -308,13 +444,28 @@ class _ChatMessageScreenState extends State<ChatMessageScreen> {
                         if (state.amIBlocked)
                           Container(
                             padding: EdgeInsets.all(12),
-                            color: Color.fromRGBO(255, 255, 255, 0.85),
+                            margin: EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 8,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Color.fromRGBO(255, 255, 255, 0.95),
+                              borderRadius: BorderRadius.circular(12),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.1),
+                                  blurRadius: 8,
+                                  offset: Offset(0, 2),
+                                ),
+                              ],
+                            ),
                             child: Text(
                               "You have been blocked",
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 color: Colors.red,
                                 fontWeight: FontWeight.w600,
+                                fontSize: 16,
                               ),
                             ),
                           ),
@@ -322,25 +473,84 @@ class _ChatMessageScreenState extends State<ChatMessageScreen> {
                           child: ListView.builder(
                             controller: _scrollController,
                             reverse: true,
-                            padding: EdgeInsets.all(16),
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 16,
+                            ),
                             itemCount: state.messages.length,
                             itemBuilder: (context, index) {
                               final message = state.messages[index];
                               final isMe =
                                   message.senderId == _chatCubit.currentUserId;
+                              final dateLabel = _getDateLabel(
+                                message.timestamp,
+                              );
+                              _showDate = dateLabel != _lastDate;
+                              _lastDate = dateLabel;
 
-                              return MessageBubble(
-                                message: message,
-                                isMe: isMe,
+                              return AnimatedBuilder(
+                                animation:
+                                    _animationController ??
+                                    AnimationController(vsync: this),
+                                builder: (context, child) {
+                                  return Opacity(
+                                    opacity: _fadeAnimation?.value ?? 1.0,
+                                    child: Column(
+                                      children: [
+                                        if (_showDate)
+                                          Center(
+                                            child: Container(
+                                              margin: EdgeInsets.symmetric(
+                                                vertical: 12,
+                                              ),
+                                              padding: EdgeInsets.symmetric(
+                                                horizontal: 12,
+                                                vertical: 6,
+                                              ),
+                                              decoration: BoxDecoration(
+                                                color: Color.fromRGBO(
+                                                  255,
+                                                  255,
+                                                  255,
+                                                  0.95,
+                                                ),
+                                                borderRadius:
+                                                    BorderRadius.circular(16),
+                                                boxShadow: [
+                                                  BoxShadow(
+                                                    color: Colors.black
+                                                        .withValues(alpha: 0.1),
+                                                    blurRadius: 8,
+                                                  ),
+                                                ],
+                                              ),
+                                              child: Text(
+                                                dateLabel,
+                                                style: TextStyle(
+                                                  color: Colors.grey[600],
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        MessageBubble(
+                                          message: message,
+                                          isMe: isMe,
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                },
                               );
                             },
                           ),
                         ),
                         if (!state.amIBlocked && !state.isUserBlocked)
                           Container(
-                            padding: EdgeInsets.all(16),
+                            padding: EdgeInsets.all(12),
                             decoration: BoxDecoration(
-                              color: Color.fromRGBO(255, 255, 255, 0.85),
+                              color: Color.fromRGBO(255, 255, 255, 0.95),
                               boxShadow: [
                                 BoxShadow(
                                   color: Colors.black.withValues(alpha: 0.1),
@@ -365,6 +575,7 @@ class _ChatMessageScreenState extends State<ChatMessageScreen> {
                                       icon: Icon(
                                         Icons.emoji_emotions_outlined,
                                         color: Color(0xFF3B9FA7),
+                                        size: 28,
                                       ),
                                     ),
                                     Expanded(
@@ -372,7 +583,7 @@ class _ChatMessageScreenState extends State<ChatMessageScreen> {
                                         decoration: BoxDecoration(
                                           color: Colors.white,
                                           borderRadius: BorderRadius.circular(
-                                            24,
+                                            30,
                                           ),
                                           boxShadow: [
                                             BoxShadow(
@@ -387,7 +598,7 @@ class _ChatMessageScreenState extends State<ChatMessageScreen> {
                                           onTap: () {
                                             if (_showEmoji) {
                                               setState(() {
-                                                _showEmoji = !_showEmoji;
+                                                _showEmoji = false;
                                               });
                                             }
                                           },
@@ -395,8 +606,9 @@ class _ChatMessageScreenState extends State<ChatMessageScreen> {
                                               TextCapitalization.sentences,
                                           controller: messageController,
                                           keyboardType: TextInputType.multiline,
+                                          maxLines: null,
                                           decoration: InputDecoration(
-                                            hintText: "Type a message",
+                                            hintText: "Message",
                                             contentPadding:
                                                 EdgeInsets.symmetric(
                                                   horizontal: 16,
@@ -404,7 +616,7 @@ class _ChatMessageScreenState extends State<ChatMessageScreen> {
                                                 ),
                                             border: OutlineInputBorder(
                                               borderRadius:
-                                                  BorderRadius.circular(24),
+                                                  BorderRadius.circular(30),
                                               borderSide: BorderSide.none,
                                             ),
                                           ),
@@ -421,6 +633,7 @@ class _ChatMessageScreenState extends State<ChatMessageScreen> {
                                         color: _isTyping
                                             ? Color(0xFF3B9FA7)
                                             : Colors.grey[400],
+                                        size: 28,
                                       ),
                                     ),
                                   ],
@@ -460,7 +673,7 @@ class _ChatMessageScreenState extends State<ChatMessageScreen> {
                                             255,
                                             255,
                                             255,
-                                            0.85,
+                                            0.95,
                                           ),
                                           loadingIndicator:
                                               const SizedBox.shrink(),
@@ -476,7 +689,7 @@ class _ChatMessageScreenState extends State<ChatMessageScreen> {
                                                 255,
                                                 255,
                                                 255,
-                                                0.85,
+                                                0.95,
                                               ),
                                               buttonColor: Color(0xFF3B9FA7),
                                             ),
@@ -490,7 +703,7 @@ class _ChatMessageScreenState extends State<ChatMessageScreen> {
                                             255,
                                             255,
                                             255,
-                                            0.85,
+                                            0.95,
                                           ),
                                           buttonIconColor: Color(0xFF3B9FA7),
                                         ),
@@ -525,25 +738,25 @@ class MessageBubble extends StatelessWidget {
       alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
         margin: EdgeInsets.only(
-          left: isMe ? 64 : 16,
-          right: isMe ? 16 : 64,
-          top: 8,
-          bottom: 8,
+          left: isMe ? 48 : 12,
+          right: isMe ? 12 : 48,
+          top: 6,
+          bottom: 6,
         ),
-        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
-          color: isMe ? Color(0xFF3B9FA7) : Color.fromRGBO(255, 255, 255, 0.85),
+          color: isMe ? Color(0xFF3B9FA7) : Color.fromRGBO(255, 255, 255, 0.95),
           borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(16),
-            topRight: Radius.circular(16),
-            bottomLeft: !isMe ? Radius.circular(0) : Radius.circular(16),
-            bottomRight: isMe ? Radius.circular(0) : Radius.circular(16),
+            topLeft: Radius.circular(20),
+            topRight: Radius.circular(20),
+            bottomLeft: isMe ? Radius.circular(20) : Radius.circular(4),
+            bottomRight: isMe ? Radius.circular(4) : Radius.circular(20),
           ),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.1),
-              blurRadius: 10,
-              offset: Offset(0, 3),
+              blurRadius: 12,
+              offset: Offset(0, 4),
             ),
           ],
         ),
@@ -559,7 +772,7 @@ class MessageBubble extends StatelessWidget {
                 fontSize: 16,
               ),
             ),
-            SizedBox(height: 4),
+            SizedBox(height: 6),
             Row(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -570,14 +783,14 @@ class MessageBubble extends StatelessWidget {
                     fontSize: 12,
                   ),
                 ),
-                SizedBox(width: 4),
+                if (isMe) SizedBox(width: 6),
                 if (isMe)
                   Icon(
                     Icons.done_all,
                     color: message.status == MessageStatus.read
-                        ? Colors.white
-                        : Colors.white70,
-                    size: 16,
+                        ? Color(0xFF25D366)
+                        : Colors.grey[500],
+                    size: 20,
                   ),
               ],
             ),

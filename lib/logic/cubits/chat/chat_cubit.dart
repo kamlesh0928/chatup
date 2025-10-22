@@ -221,6 +221,37 @@ class ChatCubit extends Cubit<ChatState> {
     }
   }
 
+  Future<void> deleteMessageForMe(String chatRoomId, String messageId) async {
+    try {
+      await _chatRepository.deleteMessageForMe(
+        chatRoomId,
+        messageId,
+        currentUserId,
+      );
+    } catch (e) {
+      emit(state.copyWith(error: "Failed to delete message for user"));
+    }
+  }
+
+  Future<void> clearChat(String receiverId) async {
+    try {
+      await _chatRepository.clearChat(currentUserId, receiverId);
+      emit(state.copyWith(messages: [], error: null, hasMoreMessages: false));
+    } catch (e) {
+      emit(
+        state.copyWith(error: "Failed to clear chat", status: ChatStatus.error),
+      );
+    }
+  }
+
+  Future<void> deleteFromEveryOne(String chatRoomId, String messageId) async {
+    try {
+      await _chatRepository.deleteFromEveryOne(chatRoomId, messageId);
+    } catch (e) {
+      emit(state.copyWith(error: "Failed to delete message for all"));
+    }
+  }
+
   Future<void> blockUser(String userId) async {
     try {
       await _chatRepository.blockUser(currentUserId, userId);
