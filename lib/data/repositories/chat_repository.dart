@@ -79,6 +79,7 @@ class ChatRepository extends BaseRepository {
       type: type,
       timestamp: Timestamp.now(),
       readBy: [senderId],
+      deletedFor: [],
     );
 
     // Add message to sub collection
@@ -264,11 +265,11 @@ class ChatRepository extends BaseRepository {
         await Future.delayed(const Duration(milliseconds: 100));
       }
 
-    //   Update chat room to reset last message fields
+      //   Update chat room to reset last message fields
       await _chatRooms.doc(chatRoomId).update({
         "lastMessage": null,
         "lastMessageTime": null,
-        "lastMessageSenderId": null
+        "lastMessageSenderId": null,
       });
     } catch (e) {
       log("Error clearing chat: $e");
@@ -276,15 +277,17 @@ class ChatRepository extends BaseRepository {
     }
   }
 
-  Future<void> deleteFromEveryOne(String chatRoomId, String messageId) async {
+  Future<void> deleteMessageForEveryone(
+    String chatRoomId,
+    String messageId,
+  ) async {
     return _chatRooms
         .doc(chatRoomId)
         .collection("messages")
         .doc(messageId)
         .update({
-          "content": "This messages was deleted",
+          "content": "This message was deleted",
           "type": MessageType.deleted.toString(),
-          "timestamp": Timestamp.now(),
         });
   }
 

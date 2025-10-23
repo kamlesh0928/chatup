@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:developer';
+import 'package:chatup/data/models/chat_message.dart';
 import 'package:chatup/data/repositories/chat_repository.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -83,10 +84,13 @@ class ChatCubit extends Cubit<ChatState> {
         .getMessages(chatRoomId)
         .listen(
           (messages) {
+            final filteredMessages = messages
+                .where((msg) => !msg.deletedFor.contains(currentUserId))
+                .toList();
             if (_isInChat) {
               _markMessagesAsRead(chatRoomId);
             }
-            emit(state.copyWith(messages: messages, error: null));
+            emit(state.copyWith(messages: filteredMessages, error: null));
           },
           onError: (error) {
             emit(
@@ -221,15 +225,30 @@ class ChatCubit extends Cubit<ChatState> {
     }
   }
 
-  Future<void> deleteMessageForMe(String chatRoomId, String messageId) async {
+  Future<void> deleteMessageForMe(String messageId, String receiverId) async {
+    if (state.chatRoomId == null) {
+      return;
+    }
+
     try {
+      // Local update: remove message
+      final updatedMessages = state.messages
+          .where((msg) => msg.id != messageId)
+          .toList();
+      emit(state.copyWith(messages: updatedMessages));
+
       await _chatRepository.deleteMessageForMe(
-        chatRoomId,
+        state.chatRoomId!,
         messageId,
         currentUserId,
       );
     } catch (e) {
-      emit(state.copyWith(error: "Failed to delete message for user"));
+      emit(
+        state.copyWith(
+          status: ChatStatus.error,
+          error: 'Failed to delete message for me',
+        ),
+      );
     }
   }
 
@@ -244,11 +263,38 @@ class ChatCubit extends Cubit<ChatState> {
     }
   }
 
-  Future<void> deleteFromEveryOne(String chatRoomId, String messageId) async {
+  Future<void> deleteMessageForEveryone(
+    String messageId,
+    String receiverId,
+  ) async {
+    if (state.chatRoomId == null) {
+      return;
+    }
+
     try {
-      await _chatRepository.deleteFromEveryOne(chatRoomId, messageId);
+      // Local update: change message to deleted
+      final updatedMessages = state.messages.map((msg) {
+        if (msg.id == messageId) {
+          return msg.copyWith(
+            content: 'This message was deleted',
+            type: MessageType.deleted,
+          );
+        }
+        return msg;
+      }).toList();
+      emit(state.copyWith(messages: updatedMessages));
+
+      await _chatRepository.deleteMessageForEveryone(
+        state.chatRoomId!,
+        messageId,
+      );
     } catch (e) {
-      emit(state.copyWith(error: "Failed to delete message for all"));
+      emit(
+        state.copyWith(
+          status: ChatStatus.error,
+          error: 'Failed to delete message for everyone',
+        ),
+      );
     }
   }
 

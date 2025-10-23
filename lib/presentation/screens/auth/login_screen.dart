@@ -156,7 +156,7 @@ class _LoginScreenState extends State<LoginScreen>
                               mainAxisSize: MainAxisSize.min,
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
-                                const SizedBox(height: 25),
+                                const SizedBox(height: 10),
                                 Text(
                                   "Welcome Back",
                                   style: Theme.of(context).textTheme.titleLarge,
@@ -168,7 +168,7 @@ class _LoginScreenState extends State<LoginScreen>
                                   style: Theme.of(context).textTheme.bodyLarge,
                                   textAlign: TextAlign.center,
                                 ),
-                                const SizedBox(height: 30),
+                                const SizedBox(height: 15),
                                 CustomTextField(
                                   controller: emailController,
                                   focusNode: _emailFocusNode,
@@ -216,7 +216,7 @@ class _LoginScreenState extends State<LoginScreen>
                                     ),
                                   ),
                                 ),
-                                const SizedBox(height: 25),
+                                const SizedBox(height: 15),
                                 CustomButton(
                                   onPressed: _isLoading ? null : handleLogin,
                                   text: _isLoading ? "Logging in..." : "Login",

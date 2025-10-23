@@ -14,6 +14,7 @@ class ChatMessage {
   final MessageStatus status;
   final Timestamp timestamp;
   final List<String> readBy;
+  final List<String> deletedFor;
 
   ChatMessage({
     required this.id,
@@ -25,6 +26,7 @@ class ChatMessage {
     this.status = MessageStatus.sent,
     required this.timestamp,
     required this.readBy,
+    this.deletedFor = const [],
   });
 
   ChatMessage copyWith({
@@ -37,6 +39,7 @@ class ChatMessage {
     MessageStatus? status,
     Timestamp? timestamp,
     List<String>? readBy,
+    List<String>? deletedFor,
   }) {
     return ChatMessage(
       id: id ?? this.id,
@@ -48,6 +51,7 @@ class ChatMessage {
       status: status ?? this.status,
       timestamp: timestamp ?? this.timestamp,
       readBy: readBy ?? this.readBy,
+      deletedFor: deletedFor ?? this.deletedFor,
     );
   }
 
@@ -70,6 +74,7 @@ class ChatMessage {
       ),
       timestamp: data["timestamp"] as Timestamp,
       readBy: List<String>.from(data["readBy"] ?? []),
+      deletedFor: List<String>.from(data["isDeletedFor"] ?? []),
     );
   }
 
@@ -83,6 +88,7 @@ class ChatMessage {
       "status": status.toString(),
       "timestamp": timestamp,
       "readBy": readBy,
+      "isDeletedFor": deletedFor,
     };
   }
 }

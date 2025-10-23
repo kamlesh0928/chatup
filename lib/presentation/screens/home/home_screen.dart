@@ -18,7 +18,8 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin {
+class _HomeScreenState extends State<HomeScreen>
+    with SingleTickerProviderStateMixin {
   late final ContactRepository _contactRepository;
   late final ChatRepository _chatRepository;
   late final String _currentUserId;
@@ -115,7 +116,10 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                         SizedBox(width: 8),
                         Text(
                           "Search contacts...",
-                          style: TextStyle(color: Colors.grey[500], fontSize: 16),
+                          style: TextStyle(
+                            color: Colors.grey[500],
+                            fontSize: 16,
+                          ),
                         ),
                       ],
                     ),
@@ -129,13 +133,20 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                           return Center(
                             child: Text(
                               "Error: ${snapshot.error}",
-                              style: TextStyle(color: Colors.grey[600], fontSize: 16),
+                              style: TextStyle(
+                                color: Colors.grey[600],
+                                fontSize: 16,
+                              ),
                             ),
                           );
                         }
 
                         if (!snapshot.hasData) {
-                          return Center(child: CircularProgressIndicator(color: Color(0xFF3B9FA7)));
+                          return Center(
+                            child: CircularProgressIndicator(
+                              color: Color(0xFF3B9FA7),
+                            ),
+                          );
                         }
 
                         final contacts = snapshot.data!;
@@ -143,7 +154,10 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                           return Center(
                             child: Text(
                               "No contacts found",
-                              style: TextStyle(color: Colors.grey[600], fontSize: 16),
+                              style: TextStyle(
+                                color: Colors.grey[600],
+                                fontSize: 16,
+                              ),
                             ),
                           );
                         }
@@ -167,10 +181,15 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                 ],
                               ),
                               child: ListTile(
-                                contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                contentPadding: EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 8,
+                                ),
                                 leading: CircleAvatar(
                                   radius: 26,
-                                  backgroundColor: Color(0xFF3B9FA7).withValues(alpha: 0.1),
+                                  backgroundColor: Color(
+                                    0xFF3B9FA7,
+                                  ).withValues(alpha: 0.1),
                                   child: Text(
                                     contact["name"]?.isNotEmpty == true
                                         ? contact["name"][0].toUpperCase()
@@ -195,7 +214,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                   getIt<AppRouter>().push(
                                     ChatMessageScreen(
                                       receiverId: contact["id"],
-                                      receiverName: contact["name"] ?? "Unknown",
+                                      receiverName:
+                                          contact["name"] ?? "Unknown",
                                     ),
                                   );
                                 },
@@ -253,12 +273,18 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                       ),
                     ),
                     PopupMenuButton<String>(
-                      icon: Icon(Icons.more_vert, color: Color(0xFF3B9FA7), size: 28),
+                      icon: Icon(
+                        Icons.more_vert,
+                        color: Color(0xFF3B9FA7),
+                        size: 28,
+                      ),
                       onSelected: (value) async {
                         if (value == "logout") {
                           await getIt<AuthCubit>().logout();
                           if (mounted) {
-                            getIt<AppRouter>().pushAndRemoveUntil(const LoginScreen());
+                            getIt<AppRouter>().pushAndRemoveUntil(
+                              const LoginScreen(),
+                            );
                           }
                         }
                       },
@@ -267,7 +293,10 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                           value: "logout",
                           child: Text(
                             "Logout",
-                            style: TextStyle(color: Color(0xFF3B9FA7), fontSize: 16),
+                            style: TextStyle(
+                              color: Color(0xFF3B9FA7),
+                              fontSize: 16,
+                            ),
                           ),
                         ),
                       ],
@@ -278,131 +307,162 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
               Expanded(
                 child: _animationController != null && _fadeAnimation != null
                     ? AnimatedBuilder(
-                  animation: _animationController!,
-                  builder: (context, child) {
-                    return Opacity(
-                      opacity: _fadeAnimation!.value,
-                      child: StreamBuilder(
-                        stream: _chatRepository.getChatRooms(_currentUserId),
-                        builder: (context, snapshot) {
-                          if (snapshot.hasError) {
-                            log(snapshot.error.toString());
-                            return Center(
-                              child: Text(
-                                "Error: ${snapshot.error}",
-                                style: TextStyle(color: Colors.grey[600], fontSize: 16),
+                        animation: _animationController!,
+                        builder: (context, child) {
+                          return Opacity(
+                            opacity: _fadeAnimation!.value,
+                            child: StreamBuilder(
+                              stream: _chatRepository.getChatRooms(
+                                _currentUserId,
                               ),
-                            );
-                          }
-
-                          if (!snapshot.hasData) {
-                            return Center(child: CircularProgressIndicator(color: Color(0xFF3B9FA7)));
-                          }
-
-                          final chats = snapshot.data!;
-                          if (chats.isEmpty) {
-                            return Center(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(
-                                    Icons.chat_bubble_outline,
-                                    size: 64,
-                                    color: Colors.grey[400],
-                                  ),
-                                  SizedBox(height: 16),
-                                  Text(
-                                    "No chats yet",
-                                    style: TextStyle(
-                                      color: Colors.grey[600],
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  SizedBox(height: 8),
-                                  Text(
-                                    "Tap the button below to start a new conversation!",
-                                    style: TextStyle(
-                                      color: Colors.grey[500],
-                                      fontSize: 16,
-                                      height: 1.4,
-                                    ),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ],
-                              ),
-                            );
-                          }
-
-                          return ListView.builder(
-                            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 12),
-                            itemCount: chats.length,
-                            itemBuilder: (context, index) {
-                              final chat = chats[index];
-                              final receiverId = chat.participants[0] == _currentUserId
-                                  ? chat.participants[1]
-                                  : chat.participants[0];
-                              final isMessagesAvailable = chat.lastMessage != null;
-                              final isLastMessageRead = (() {
-                                final lastRead = chat.lastReadTime[receiverId]?.toDate();
-                                final lastMessage = chat.lastMessageTime?.toDate();
-                                if (lastRead == null || lastMessage == null) {
-                                  return false;
-                                }
-                                return lastRead.isAfter(lastMessage) ||
-                                    lastRead.isAtSameMomentAs(lastMessage);
-                              })();
-                              return AnimatedBuilder(
-                                animation: _animationController!,
-                                builder: (context, child) {
-                                  return Transform.translate(
-                                    offset: Offset(0, 20 * (1 - _fadeAnimation!.value)),
-                                    child: Opacity(
-                                      opacity: _fadeAnimation!.value,
-                                      child: ChatListTile(
-                                        chat: chat,
-                                        currentUserId: _currentUserId,
-                                        isLastMessageRead: isLastMessageRead,
-                                        isMessagesAvailable: isMessagesAvailable,
-                                        onTap: () {
-                                          final receiverName =
-                                              chat.participantsName?[receiverId] ?? "Unknown";
-                                          getIt<AppRouter>().push(
-                                            ChatMessageScreen(
-                                              receiverId: receiverId,
-                                              receiverName: receiverName,
-                                            ),
-                                          );
-                                        },
+                              builder: (context, snapshot) {
+                                if (snapshot.hasError) {
+                                  log(snapshot.error.toString());
+                                  return Center(
+                                    child: Text(
+                                      "Error: ${snapshot.error}",
+                                      style: TextStyle(
+                                        color: Colors.grey[600],
+                                        fontSize: 16,
                                       ),
                                     ),
                                   );
-                                },
-                              );
-                            },
+                                }
+
+                                if (!snapshot.hasData) {
+                                  return Center(
+                                    child: CircularProgressIndicator(
+                                      color: Color(0xFF3B9FA7),
+                                    ),
+                                  );
+                                }
+
+                                final chats = snapshot.data!;
+                                if (chats.isEmpty) {
+                                  return Center(
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Icon(
+                                          Icons.chat_bubble_outline,
+                                          size: 64,
+                                          color: Colors.grey[400],
+                                        ),
+                                        SizedBox(height: 16),
+                                        Text(
+                                          "No chats yet",
+                                          style: TextStyle(
+                                            color: Colors.grey[600],
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                        SizedBox(height: 8),
+                                        Text(
+                                          "Tap the button below to start a new conversation!",
+                                          style: TextStyle(
+                                            color: Colors.grey[500],
+                                            fontSize: 16,
+                                            height: 1.4,
+                                          ),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                }
+
+                                return ListView.builder(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 12,
+                                  ),
+                                  itemCount: chats.length,
+                                  itemBuilder: (context, index) {
+                                    final chat = chats[index];
+                                    final receiverId =
+                                        chat.participants[0] == _currentUserId
+                                        ? chat.participants[1]
+                                        : chat.participants[0];
+                                    final isMessagesAvailable =
+                                        chat.lastMessage != null;
+                                    final isLastMessageRead = (() {
+                                      final lastRead = chat
+                                          .lastReadTime[receiverId]
+                                          ?.toDate();
+                                      final lastMessage = chat.lastMessageTime
+                                          ?.toDate();
+                                      if (lastRead == null ||
+                                          lastMessage == null) {
+                                        return false;
+                                      }
+                                      return true;
+                                    })();
+                                    return AnimatedBuilder(
+                                      animation: _animationController!,
+                                      builder: (context, child) {
+                                        return Transform.translate(
+                                          offset: Offset(
+                                            0,
+                                            20 * (1 - _fadeAnimation!.value),
+                                          ),
+                                          child: Opacity(
+                                            opacity: _fadeAnimation!.value,
+                                            child: ChatListTile(
+                                              chat: chat,
+                                              currentUserId: _currentUserId,
+                                              isLastMessageRead:
+                                                  isLastMessageRead,
+                                              isMessagesAvailable:
+                                                  isMessagesAvailable,
+                                              onTap: () {
+                                                final receiverName =
+                                                    chat.participantsName?[receiverId] ??
+                                                    "Unknown";
+                                                getIt<AppRouter>().push(
+                                                  ChatMessageScreen(
+                                                    receiverId: receiverId,
+                                                    receiverName: receiverName,
+                                                  ),
+                                                );
+                                              },
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    );
+                                  },
+                                );
+                              },
+                            ),
                           );
                         },
+                      )
+                    : Center(
+                        child: CircularProgressIndicator(
+                          color: Color(0xFF3B9FA7),
+                        ),
                       ),
-                    );
-                  },
-                )
-                    : Center(child: CircularProgressIndicator(color: Color(0xFF3B9FA7))),
               ),
             ],
           ),
         ),
       ),
-      floatingActionButton: _animationController != null && _fadeAnimation != null
+      floatingActionButton:
+          _animationController != null && _fadeAnimation != null
           ? ScaleTransition(
-        scale: _fadeAnimation!,
-        child: FloatingActionButton(
-          onPressed: () => _showContactsList(context),
-          backgroundColor: Color(0xFF3B9FA7),
-          child: Icon(Icons.message, color: Colors.white, size: 28),
-          elevation: 5,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        ),
-      )
+              scale: _fadeAnimation!,
+              child: FloatingActionButton(
+                onPressed: () => _showContactsList(context),
+                backgroundColor: Color(0xFF3B9FA7),
+                child: Icon(Icons.message, color: Colors.white, size: 28),
+                elevation: 5,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+              ),
+            )
           : null,
     );
   }
