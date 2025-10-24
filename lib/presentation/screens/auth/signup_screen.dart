@@ -8,7 +8,6 @@ import 'package:flutter/material.dart';
 import 'package:chatup/core/common/custom_button.dart';
 import 'package:chatup/core/common/custom_text_field.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import '../../../logic/cubits/auth/auth_state.dart';
 import '../home/home_screen.dart';
 
@@ -204,142 +203,152 @@ class _SignupScreenState extends State<SignupScreen>
                               ),
                             ],
                           ),
-                          child: Form(
-                            key: _formKey,
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                const SizedBox(height: 25),
-                                Text(
-                                  "Create Account",
-                                  style: Theme.of(context).textTheme.titleLarge,
-                                  textAlign: TextAlign.center,
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  "Please fill in the details to continue",
-                                  style: Theme.of(context).textTheme.bodyLarge,
-                                  textAlign: TextAlign.center,
-                                ),
-                                const SizedBox(height: 30),
-                                CustomTextField(
-                                  controller: nameController,
-                                  focusNode: _nameFocusNode,
-                                  validator: _validateName,
-                                  hintText: "Full Name",
-                                  prefixIcon: Icon(
-                                    Icons.person_outline,
-                                    color: Color(0xFF3B9FA7),
+                          child: SingleChildScrollView(
+                            // Added SingleChildScrollView
+                            child: Form(
+                              key: _formKey,
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  const SizedBox(height: 25),
+                                  Text(
+                                    "Create Account",
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.titleLarge,
+                                    textAlign: TextAlign.center,
                                   ),
-                                ),
-                                const SizedBox(height: 20),
-                                CustomTextField(
-                                  controller: usernameController,
-                                  focusNode: _usernameFocusNode,
-                                  validator: _validateUsername,
-                                  hintText: "Username",
-                                  prefixIcon: Icon(
-                                    Icons.alternate_email_rounded,
-                                    color: Color(0xFF3B9FA7),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    "Please fill in the details to continue",
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.bodyLarge,
+                                    textAlign: TextAlign.center,
                                   ),
-                                ),
-                                const SizedBox(height: 20),
-                                CustomTextField(
-                                  controller: emailController,
-                                  focusNode: _emailFocusNode,
-                                  validator: _validateEmail,
-                                  hintText: "Email",
-                                  prefixIcon: Icon(
-                                    Icons.email_outlined,
-                                    color: Color(0xFF3B9FA7),
-                                  ),
-                                ),
-                                const SizedBox(height: 20),
-                                CustomTextField(
-                                  controller: phoneController,
-                                  focusNode: _phoneFocusNode,
-                                  validator: _validatePhone,
-                                  hintText: "Phone Number",
-                                  keyboardType: TextInputType.phone,
-                                  prefixIcon: Icon(
-                                    Icons.phone_outlined,
-                                    color: Color(0xFF3B9FA7),
-                                  ),
-                                ),
-                                const SizedBox(height: 20),
-                                CustomTextField(
-                                  controller: passwordController,
-                                  focusNode: _passwordFocusNode,
-                                  validator: _validatePassword,
-                                  hintText: "Password",
-                                  obscureText: _isPasswordVisible,
-                                  prefixIcon: Icon(
-                                    Icons.lock_outline,
-                                    color: Color(0xFF3B9FA7),
-                                  ),
-                                  suffixIcon: IconButton(
-                                    onPressed: () {
-                                      setState(() {
-                                        _isPasswordVisible =
-                                            !_isPasswordVisible;
-                                      });
-                                    },
-                                    icon: _isPasswordVisible
-                                        ? Icon(Icons.visibility)
-                                        : Icon(Icons.visibility_off),
-                                  ),
-                                ),
-                                const SizedBox(height: 25),
-                                CustomButton(
-                                  onPressed: _isLoading ? null : handleSignup,
-                                  text: _isLoading
-                                      ? "Creating Account..."
-                                      : "Create Account",
-                                  child: _isLoading
-                                      ? const SizedBox(
-                                          height: 24,
-                                          width: 24,
-                                          child: CircularProgressIndicator(
-                                            strokeWidth: 2,
-                                            valueColor:
-                                                AlwaysStoppedAnimation<Color>(
-                                                  Colors.white,
-                                                ),
-                                          ),
-                                        )
-                                      : null,
-                                ),
-                                const SizedBox(height: 20),
-                                GestureDetector(
-                                  onTap: () {
-                                    getIt<AppRouter>().push(
-                                      const LoginScreen(),
-                                    );
-                                  },
-                                  child: RichText(
-                                    text: TextSpan(
-                                      children: <TextSpan>[
-                                        TextSpan(
-                                          text: "Already have an account? ",
-                                          style: TextStyle(
-                                            color: Colors.grey[600],
-                                            fontSize: 16,
-                                          ),
-                                        ),
-                                        TextSpan(
-                                          text: "Login",
-                                          style: TextStyle(
-                                            color: Color(0xFF3B9FA7),
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 16,
-                                          ),
-                                        ),
-                                      ],
+                                  const SizedBox(height: 30),
+                                  CustomTextField(
+                                    controller: nameController,
+                                    focusNode: _nameFocusNode,
+                                    validator: _validateName,
+                                    hintText: "Full Name",
+                                    prefixIcon: Icon(
+                                      Icons.person_outline,
+                                      color: Color(0xFF3B9FA7),
                                     ),
                                   ),
-                                ),
-                              ],
+                                  const SizedBox(height: 20),
+                                  CustomTextField(
+                                    controller: usernameController,
+                                    focusNode: _usernameFocusNode,
+                                    validator: _validateUsername,
+                                    hintText: "Username",
+                                    prefixIcon: Icon(
+                                      Icons.alternate_email_rounded,
+                                      color: Color(0xFF3B9FA7),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 20),
+                                  CustomTextField(
+                                    controller: emailController,
+                                    focusNode: _emailFocusNode,
+                                    validator: _validateEmail,
+                                    hintText: "Email",
+                                    prefixIcon: Icon(
+                                      Icons.email_outlined,
+                                      color: Color(0xFF3B9FA7),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 20),
+                                  CustomTextField(
+                                    controller: phoneController,
+                                    focusNode: _phoneFocusNode,
+                                    validator: _validatePhone,
+                                    hintText: "Phone Number",
+                                    keyboardType: TextInputType.phone,
+                                    prefixIcon: Icon(
+                                      Icons.phone_outlined,
+                                      color: Color(0xFF3B9FA7),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 20),
+                                  CustomTextField(
+                                    controller: passwordController,
+                                    focusNode: _passwordFocusNode,
+                                    validator: _validatePassword,
+                                    hintText: "Password",
+                                    obscureText: _isPasswordVisible,
+                                    prefixIcon: Icon(
+                                      Icons.lock_outline,
+                                      color: Color(0xFF3B9FA7),
+                                    ),
+                                    suffixIcon: IconButton(
+                                      onPressed: () {
+                                        setState(() {
+                                          _isPasswordVisible =
+                                              !_isPasswordVisible;
+                                        });
+                                      },
+                                      icon: _isPasswordVisible
+                                          ? Icon(Icons.visibility)
+                                          : Icon(Icons.visibility_off),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 25),
+                                  CustomButton(
+                                    onPressed: _isLoading ? null : handleSignup,
+                                    text: _isLoading
+                                        ? "Creating Account..."
+                                        : "Create Account",
+                                    child: _isLoading
+                                        ? const SizedBox(
+                                            height: 24,
+                                            width: 24,
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2,
+                                              valueColor:
+                                                  AlwaysStoppedAnimation<Color>(
+                                                    Colors.white,
+                                                  ),
+                                            ),
+                                          )
+                                        : null,
+                                  ),
+                                  const SizedBox(height: 20),
+                                  GestureDetector(
+                                    onTap: () {
+                                      getIt<AppRouter>().push(
+                                        const LoginScreen(),
+                                      );
+                                    },
+                                    child: RichText(
+                                      text: TextSpan(
+                                        children: <TextSpan>[
+                                          TextSpan(
+                                            text: "Already have an account? ",
+                                            style: TextStyle(
+                                              color: Colors.grey[600],
+                                              fontSize: 16,
+                                            ),
+                                          ),
+                                          TextSpan(
+                                            text: "Login",
+                                            style: TextStyle(
+                                              color: Color(0xFF3B9FA7),
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 16,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(
+                                    height: 20,
+                                  ), // Added padding at the bottom
+                                ],
+                              ),
                             ),
                           ),
                         ),
