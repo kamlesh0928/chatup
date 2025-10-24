@@ -2,6 +2,8 @@
 
 ChatUp​‍​‌‍​‍‌​‍​‌‍​‍‌ is a real-time chat application developed with Flutter. The app is built around the core features of communication and uses Firebase as backend services and Bloc/Cubit for state management.
 
+---
+
 ## Features
 
 * **User Authentication:** Users are provided with safe sign-up and login functionalities.
@@ -19,6 +21,8 @@ ChatUp​‍​‌‍​‍‌​‍​‌‍​‍‌ is a real-time chat appli
 
   * **Block/Unblock:** Control communication with the help of blocking or unblocking certain ​‍​‌‍​‍‌​‍​‌‍​‍‌friends.
 
+---
+
 ## Tech Stack
 
 * **Framework:** Flutter
@@ -26,6 +30,8 @@ ChatUp​‍​‌‍​‍‌​‍​‌‍​‍‌ is a real-time chat appli
 * **Backend-as-a-Service (BaaS):** Firebase
 * **Database:** Firestore
 * **Authentication:** Firebase Authentication
+
+---
 
 ## Screenshots
 
@@ -36,3 +42,15 @@ ChatUp​‍​‌‍​‍‌​‍​‌‍​‍‌ is a real-time chat appli
 | Signup Screen | Chat Screen |
 | :---: | :---: |
 | <img src="https://github.com/user-attachments/assets/18d95f9b-8290-4a9e-b6e9-ccbbbb1cd345" width="300" alt="Signup Screen" /> | <img src="https://github.com/user-attachments/assets/5057375f-6a81-4104-a58e-9755d5eca8bb" width="300" alt="Chat Screen" /> |
+
+---
+
+## Contributing
+Contributions are welcome! If you'd like to contribute, please fork the repository and create a pull request.
+
+---
+
+## License
+This project is licensed under the MIT License. Please see the [LICENSE](LICENSE) file for more information.
+
+---
