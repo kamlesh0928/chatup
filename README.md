@@ -28,3 +28,11 @@ ChatUp​‍​‌‍​‍‌​‍​‌‍​‍‌ is a real-time chat appli
 * **Authentication:** Firebase Authentication
 
 ## Screenshots
+
+| Splash Screen | Login Screen |
+| :---: | :---: |
+| <img src="https://github.com/user-attachments/assets/ac3dc86d-8875-4259-8270-46bc38dfd690" width="300" alt="Splash Screen" /> | <img src="https://github.com/user-attachments/assets/f644ee0f-2465-4836-849e-34498185ea40" width="300" alt="Login Screen" /> |
+
+| Signup Screen | Chat Screen |
+| :---: | :---: |
+| <img src="https://github.com/user-attachments/assets/18d95f9b-8290-4a9e-b6e9-ccbbbb1cd345" width="300" alt="Signup Screen" /> | <img src="https://github.com/user-attachments/assets/5057375f-6a81-4104-a58e-9755d5eca8bb" width="300" alt="Chat Screen" /> |
